@@ -78,26 +78,6 @@ class UserController {
     }
   }
   
-
-  // async updateUser(req, res) {
-  //   const userId = parseInt(req.params.id);
-  //   const { name, surname, email, username, password, age, gender } = req.body;
-  //   try {
-  //     const passwordBase64 = Buffer.from(password).toString('base64'); // Encode password to Base64
-  //     const updatedUser = await this.postgreSQL.executeQuery(
-  //       'UPDATE users SET name = $1, surname = $2, email = $3, username = $4, password = $5, age = $6, gender = $7 WHERE id = $8 RETURNING id, name, surname, email, age, gender',
-  //       [name, surname, email, username, passwordBase64, age, gender, userId]
-  //     );
-  //     if (updatedUser.length > 0) {
-  //       res.json(updatedUser[0]);
-  //     } else {
-  //       this.sendErrorResponse(res, 404, 'User not found');
-  //     }
-  //   } catch (error) {
-  //     this.sendErrorResponse(res);
-  //   }
-  // }
-
   async updateUser(req, res) {
     const userId = parseInt(req.params.id);
     const { name, surname, email, username, password, age, gender } = req.body;

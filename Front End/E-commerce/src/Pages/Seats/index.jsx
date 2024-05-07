@@ -61,7 +61,7 @@ function App() {
                         backgroundColor: (userStatus[user.id]?.lastSubmitted && 'green') ||
                           (userStatus[user.id]?.lastSimilarityAlarm && 'red') ||
                           (userStatus[user.id]?.lastScoringPreceding && 'yellow') ||
-                          (blink ? 'white' : 'white'), // Adjust according to your logic
+                          (blink ? 'white' : 'white'), 
                         display: 'flex',
                         transition: 'background-color 0.3s ease',
                         border: '1px solid transparent',

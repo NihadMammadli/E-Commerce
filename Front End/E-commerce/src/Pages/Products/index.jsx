@@ -1,95 +1,102 @@
-import { useState, useEffect } from 'react';
-import { Row, Col, Table, Typography, message, Button } from "antd";
-import axios from "axios";
-import View from './View'
-import socketIOClient from 'socket.io-client';
+import React, { useEffect, useState } from 'react';
+import { Row, Col, Input, Typography, Button, Card, Image } from 'antd';
+import { UserOutlined, ShoppingCartOutlined, StarFilled, StarOutlined, PlusOutlined } from '@ant-design/icons';
+import axios from 'axios';
+import Insert from './Insert';
 
-function App() {
-  const [messageApi, contextHolder] = message.useMessage();
+const { Title } = Typography;
+const { Search } = Input;
 
-  const [sections, setSections] = useState([]);
-  const [userStatus, setUserStatus] = useState({});
-  const [blink, setBlink] = useState(false);
+const App = () => {
+  const [products, setProducts] = useState([]);
+  const [insertModal, setInsertModal] = useState(false);
 
-  const [viewOpen, setViewOpen] = useState(false)
-  const [viewData, setViewData] = useState(false)
+  const showModal = () => {
+    setInsertModal(true);
+  };
 
-  const showView = (data, index) => {
-    setViewOpen(true)
-    setViewData(data)
-  }
+  const closeModal = () => {
+    setInsertModal(false);
+    fetchProducts()
+  };
 
-  const viewClose = () => {
-    setViewOpen(false)
-  }
+  const renderStars = (rating) => {
+    const fullStars = Math.floor(rating);
+    const hasHalfStar = rating % 1 !== 0;
+
+    const stars = [];
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<StarFilled key={`star${i}`} style={{ color: '#ffc107' }} />);
+    }
+    if (hasHalfStar) {
+      stars.push(<StarOutlined key="halfStar" style={{ color: '#ffc107' }} />);
+    }
+
+    return stars;
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/products`);
+      setProducts(response.data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   return (
     <>
-      {contextHolder}
-      <div style={{ height: '90%' }}>
-        <Row gutter={[16, 16]} style={{ padding: "5px" }}>
-          {sections?.map(section => (
-            <Col key={section?.id} span={5}
-              style={{
-                boxShadow: "0 5px 6px rgba(0, 0, 5, 0.1)",
-                transition: "border-color 0.3s ease",
-                border: "1px solid transparent",
-                borderRadius: "6px",
-                padding: "10px 20px 20px 20px",
-                margin: "auto"
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#1677FF";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "transparent";
-              }}
-            >
-              <Row style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                <Typography style={{ fontSize: "20px", fontWeight: "600" }}>{section?.section.toUpperCase()}</Typography>
-              </Row>
-              <Row gutter={[16, 16]}>
-                {section?.users.map(user => (
-                  <Col key={user?.id} span={8}
-                    style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-                    <div
-                      onClick={(_) => showView(user)}
-                      style={{
-                        width: '100px',
-                        borderRadius: '5px',
-                        height: '100px',
-                        backgroundColor: (userStatus[user.id]?.lastSubmitted && 'green') ||
-                          (userStatus[user.id]?.lastSimilarityAlarm && 'red') ||
-                          (userStatus[user.id]?.lastScoringPreceding && 'yellow') ||
-                          (blink ? 'white' : 'white'), // Adjust according to your logic
-                        display: 'flex',
-                        transition: 'background-color 0.3s ease',
-                        border: '1px solid transparent',
-                        flexDirection: 'column',
-                        boxShadow: '0 5px 6px rgba(15, 15, 15, 0.1)',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.borderColor = "#1677FF";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.borderColor = "transparent";
-                      }}
-                    >
-                      <Typography.Text style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{user?.first_name}</Typography.Text>
-                      <Typography.Text style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>{user?.last_name}</Typography.Text>
+      <div style={{ height: '100vh', backgroundColor: 'rgb(250, 250, 250)', padding: '20px', justifyContent: "center", display: "flex" }}>
+        <Col span={20} style={{ height: "100%", backgroundColor: "#FFFFFF" }}>
+          <div style={{ padding: '10px 20px', display: 'flex', alignItems: 'center' }}>
+            <Image
+              width={77.5}
+              height={50}
+              src="https://upload.wikimedia.org/wikipedia/commons/2/20/Adalogonew.png"
+            />
+            <Search placeholder="Ne axtarirsiniz?" style={{ flex: 1, paddingLeft: "30px", marginRight: '10px' }} />
+            <Button type="text" icon={<UserOutlined /> } style={{ marginRight: '10px' }}  onClick={goToLoginPage}>Daxil ol</Button>
+            <Button type="text" icon={<ShoppingCartOutlined />}>Sebetim</Button>
+            <Button type="text" icon={<PlusOutlined />}  onClick={showModal} >Produkt Əlavə et</Button>
+          </div>
+
+          <div style={{ paddingLeft: "20px", marginTop: '20px' }}>
+            <Title level={3}>Produktlar</Title>
+            <Row gutter={[16, 16]}>
+              {products.map((product) => (
+                <Col key={product.id} xs={12} sm={8} md={6} lg={4} xl={4}>
+                  <Card hoverable>
+                    <div style={{ textAlign: 'center' }}>
+                      <img src={product.image_url} alt={product.product_name} style={{ width: '70%' }} />
                     </div>
-                  </Col>
-                ))}
-              </Row>
-            </Col>
-          ))}
-        </Row>
+                    <Card.Meta
+                      title={product.product_name.trim()}
+                      description={
+                        <>
+                          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '5px' }}>
+                            {renderStars(parseFloat(product.rating))}
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', marginBottom: '5px' }}>
+                            <span style={{ color: 'gold', fontWeight: 'bold', marginRight: '5px' }}>{product.price} ₼</span>
+                            <span style={{ textTransform: 'capitalize' }}>{product.color}</span>
+                          </div>
+                        </>
+                      }
+                    />
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        </Col>
       </div>
-      <View open={viewOpen} close={viewClose} data={viewData} />
+      <Insert open={insertModal} close={closeModal}/>
     </>
   );
-}
+};
 
 export default App;
