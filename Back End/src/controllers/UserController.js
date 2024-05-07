@@ -43,17 +43,41 @@ class UserController {
 
   async createUser(req, res) {
     const { name, surname, email, username, password, age, gender } = req.body;
+  
     try {
-      const passwordBase64 = Buffer.from(password).toString('base64'); // Encode password to Base64
+      const passwordBase64 = Buffer.from(password).toString('base64'); 
       const newUser = await this.postgreSQL.executeQuery(
         'INSERT INTO users (name, surname, email, username, password, age, gender) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, name, surname, email, age, gender',
         [name, surname, email, username, passwordBase64, age, gender]
       );
-      res.status(201).json(newUser[0]);
+  
+      if (newUser.length > 0) {
+        res.status(201).json(newUser[0]);
+      } else {
+        throw new Error('Failed to create user'); 
+      }
     } catch (error) {
-      this.sendErrorResponse(res);
+      console.error('Error creating user:', error);
+  
+      let errorMessage = 'Internal Server Error';
+  
+      if (error.code === '23505') {
+        if (error.constraint === 'users_email_key') {
+          errorMessage = 'Bu email artıq istifadə olunub!';
+        } else if (error.constraint === 'users_username_key') {
+          errorMessage = 'Bu istifadəçi adı artıq istifadə olunur!';
+        }
+      } else if (error.code === '22P02' && error.where) {
+        const errorDetails = error.where.split(' = ')[0].trim();
+        errorMessage = `Invalid input: ${errorDetails}`;
+      } else {
+        errorMessage = error.message;
+      }
+  
+      res.status(400).json({ message: errorMessage }); 
     }
   }
+  
 
   // async updateUser(req, res) {
   //   const userId = parseInt(req.params.id);

@@ -1,5 +1,5 @@
-import Seats from "./Seats"
-import Alarms from "./Alarms"
-import Competitors from "./Competitors"
+import Login from "./Login"
+import Products from "./Products"
+import Registration from "./Registration"
 
-export {Seats, Alarms, Competitors};
+export {Products, Login, Registration};
