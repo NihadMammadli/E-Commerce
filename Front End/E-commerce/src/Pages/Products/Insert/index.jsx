@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, Select, Button, message } from 'antd';
+import { Modal, Form, Input, Select, Button, message, Tag } from 'antd';
 import axios from 'axios';
 
 const { Option } = Select;
@@ -9,6 +9,40 @@ const Insert = ({ open, close }) => {
   const [productTypes, setProductTypes] = useState([]);
   const [loading, setLoading] = useState(false);
   const [imageBase64, setImageBase64] = useState(null);
+
+  const colorOptions = [
+    { value: 'black', label: 'Black', color: '#000000' },
+    { value: 'red', label: 'Red', color: '#ff0000' },
+    { value: 'blue', label: 'Blue', color: '#0000ff' },
+    { value: 'green', label: 'Green', color: '#008000' },
+    { value: 'yellow', label: 'Yellow', color: '#ffff00' },
+    { value: 'white', label: 'White', color: '#ffffff' },
+    { value: 'gray', label: 'Gray', color: '#808080' },
+    { value: 'brown', label: 'Brown', color: '#a52a2a' },
+    { value: 'orange', label: 'Orange', color: '#ff7f00' },
+    { value: 'purple', label: 'Purple', color: '#800080' },
+    { value: 'pink', label: 'Pink', color: '#ffc0cb' },
+    { value: 'cyan', label: 'Cyan', color: '#00ffff' },
+    { value: 'magenta', label: 'Magenta', color: '#ff00ff' },
+    { value: 'turquoise', label: 'Turquoise', color: '#40e0d0' },
+    { value: 'teal', label: 'Teal', color: '#008080' },
+    { value: 'lime', label: 'Lime', color: '#00ff00' },
+    { value: 'olive', label: 'Olive', color: '#808000' },
+    { value: 'gold', label: 'Gold', color: '#ffd700' },
+    { value: 'silver', label: 'Silver', color: '#c0c0c0' },
+    { value: 'navy', label: 'Navy', color: '#000080' },
+    { value: 'maroon', label: 'Maroon', color: '#800000' },
+    { value: 'indigo', label: 'Indigo', color: '#4b0082' },
+    { value: 'lavender', label: 'Lavender', color: '#e6e6fa' },
+    { value: 'beige', label: 'Beige', color: '#f5f5dc' },
+    { value: 'coral', label: 'Coral', color: '#ff7f50' },
+    { value: 'ivory', label: 'Ivory', color: '#fffff0' },
+    { value: 'khaki', label: 'Khaki', color: '#f0e68c' },
+    { value: 'salmon', label: 'Salmon', color: '#fa8072' },
+    { value: 'tan', label: 'Tan', color: '#d2b48c' },
+    { value: 'violet', label: 'Violet', color: '#ee82ee' },
+    { value: 'mint', label: 'Mint', color: '#98ff98' },
+  ];
 
   useEffect(() => {
     axios.get(`${import.meta.env.VITE_BASE_API}/products_list`)
@@ -25,9 +59,9 @@ const Insert = ({ open, close }) => {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setImageBase64(reader.result); 
+        setImageBase64(reader.result);
       };
-      reader.readAsDataURL(file); 
+      reader.readAsDataURL(file);
     }
   };
 
@@ -41,9 +75,9 @@ const Insert = ({ open, close }) => {
       }
 
       const response = await axios.post(`${import.meta.env.VITE_BASE_API}/products`, formData);
-      console.log('Product added:', response.data);
+      console.log('Məhsul əlavə olundu:', response.data);
 
-      message.success('Product added successfully');
+      message.success('Məhsul əlavə olundu');
       form.resetFields();
       setImageBase64(null);
       close();
@@ -57,26 +91,26 @@ const Insert = ({ open, close }) => {
 
   return (
     <Modal
-      title="Add New Product"
+      title="Yeni Məhsul Yarat"
       visible={open}
       onCancel={close}
       footer={[
         <Button key="cancel" onClick={close}>
-          Cancel
+          Ləğv et
         </Button>,
         <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>
-          Add Product
+          Məhsul Əlavə Edin
         </Button>,
       ]}
     >
       <Form form={form} layout="vertical" onFinish={handleSubmit}>
-        <Form.Item name="product_name" label="Product Name" rules={[{ required: true, message: 'Please enter product name' }]}>
+        <Form.Item name="product_name" label="Məhsulun Adı" rules={[{ required: true, message: 'Zəhmət olmasa adı daxil edin' }]}>
           <Input />
         </Form.Item>
-        <Form.Item name="description" label="Description" rules={[{ required: true, message: 'Please enter description' }]}>
+        <Form.Item name="description" label="Məhsul Haqqında Məlumatlar" rules={[{ required: true, message: 'Zəhmət olmasa məlumatları daxil edin' }]}>
           <Input.TextArea />
         </Form.Item>
-        <Form.Item name="product_type_id" label="Product Type" rules={[{ required: true, message: 'Please select product type' }]}>
+        <Form.Item name="product_type_id" label="Məhsulun Növü" rules={[{ required: true, message: 'Zəhmət olmasa növü seçin' }]}>
           <Select>
             {productTypes.map(type => (
               <Option key={type.id} value={type.id}>
@@ -85,19 +119,24 @@ const Insert = ({ open, close }) => {
             ))}
           </Select>
         </Form.Item>
-        <Form.Item name="color" label="Color" rules={[{ required: true, message: 'Please select color' }]}>
+        <Form.Item name="color" label="Rəng" rules={[{ required: true, message: 'Zəhmət olmasa rəngi seçin' }]}>
           <Select>
-            <Option value="black">Black</Option>
-            <Option value="red">Red</Option>
-            <Option value="blue">Blue</Option>
-            <Option value="green">Green</Option>
-            {/* Add more color options as needed */}
+            {colorOptions.map((option) => (
+              <Select.Option key={option.value} value={option.value}>
+                <Tag color={option.color} style={{ height:"10px", marginRight: "10px"}}></Tag>
+                {option.label}
+              </Select.Option>
+            ))}
           </Select>
         </Form.Item>
-        <Form.Item name="price" label="Price" rules={[{ required: true, message: 'Please enter price' }]}>
+
+        <Form.Item name="price" label="Qiymət" rules={[{ required: true, message: 'Zəhmət olmasa qiyməti daxil edin' }]}>
           <Input type="number" min={0} step={0.01} />
         </Form.Item>
-        <Form.Item name="rating" label="Rating" rules={[{ required: true, message: 'Please enter rating' }]}>
+        <Form.Item name="rating" label="Keyfiyyət" rules={[{ required: true, message: 'Zəhmət olmasa keyfiyyəti daxil edin' }]}>
+          <Input type="number" min={0} step={0.01} />
+        </Form.Item>
+        <Form.Item name="quantity" label="Say" rules={[{ required: true, message: 'Zəhmət olmasa sayı daxil edin' }]}>
           <Input type="number" min={0} step={0.01} />
         </Form.Item>
         <input type="file" accept="image/*" onChange={handleImageChange} style={{ marginBottom: '16px' }} />

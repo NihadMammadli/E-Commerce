@@ -19,7 +19,7 @@ class UserController {
 
   async getAllProducts(req, res) {
     try {
-      const products = await this.postgreSQL.executeQuery('SELECT id, product_name, description, image_url, product_type_id, color, price, rating FROM products');
+      const products = await this.postgreSQL.executeQuery('SELECT id, product_name, description, image_url, product_type_id, color, price, rating, quantity FROM products');
       res.json(products);
     } catch (error) {
       this.sendErrorResponse(res);
@@ -30,7 +30,7 @@ class UserController {
     const productId = parseInt(req.params.id);
     try {
       const product = await this.postgreSQL.executeQuery(
-        'SELECT id, product_name, description, image_url, product_type_id, color, price, rating FROM products WHERE id = $1',
+        'SELECT id, product_name, description, image_url, product_type_id, color, price, rating, quantity FROM products WHERE id = $1',
         [productId]
       );
       if (product.length > 0) {
@@ -44,14 +44,14 @@ class UserController {
   }
 
   async createProduct(req, res) {
-    const { product_name, description, image_url, product_type_id, color, price, rating } = req.body;
+    const { product_name, description, image_url, product_type_id, color, price, rating, quantity } = req.body;
     console.log('Request Body:', image_url);
     try {
       const newProduct = await this.postgreSQL.executeQuery(
-        'INSERT INTO products (product_name, description, image_url, product_type_id, color, price, rating) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, product_name, description, image_url, product_type_id, color, price, rating',
-        [product_name, description, image_url, product_type_id, color, price, rating]
+        'INSERT INTO products (product_name, description, image_url, product_type_id, color, price, rating, quantity) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, product_name, description, image_url, product_type_id, color, price, rating, quantity',
+        [product_name, description, image_url, product_type_id, color, price, rating, quantity]
+        
       );
-
       if (newProduct.length > 0) {
         res.status(201).json(newProduct[0]);
       } else {
@@ -69,8 +69,8 @@ class UserController {
 
     try {
       const updatedProduct = await this.postgreSQL.executeQuery(
-        'UPDATE products SET product_name = $1, description = $2, image_url = $3, product_type_id = $4, color = $5, price = $6, rating = $7 WHERE id = $8 RETURNING id, product_name, description, image_url, product_type_id, color, price, rating',
-        [product_name, description, image_url, product_type_id, color, price, rating, productId]
+        'UPDATE products SET product_name = $1, description = $2, image_url = $3, product_type_id = $4, color = $5, price = $6, rating = $7, quantity = $8 WHERE id = $9 RETURNING id, product_name, description, image_url, product_type_id, color, price, rating, quantity',
+        [product_name, description, image_url, product_type_id, color, price, rating, quantity, productId]
       );
 
       if (updatedProduct.length > 0) {
@@ -88,7 +88,7 @@ class UserController {
     const productId = parseInt(req.params.id);
     try {
       const deletedProduct = await this.postgreSQL.executeQuery(
-        'DELETE FROM products WHERE id = $1 RETURNING id, product_name, description, image_url, product_type_id, color, price, rating',
+        'DELETE FROM products WHERE id = $1 RETURNING id, product_name, description, image_url, product_type_id, color, price, rating, quantity',
         [productId]
       );
       if (deletedProduct.length > 0) {

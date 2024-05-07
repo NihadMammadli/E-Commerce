@@ -132,7 +132,6 @@ class UserController {
     }
   }
 
-  
   async deleteUser(req, res) {
     const userId = parseInt(req.params.id);
     try {
